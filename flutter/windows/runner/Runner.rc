@@ -89,8 +89,8 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "Purslane Ltd" "\0"
-            VALUE "FileDescription", "RustDesk Remote Desktop" "\0"
+            VALUE "CompanyName", "SoftJem Tecnologia" "\0"
+            VALUE "FileDescription", "IPMon Remote Desktop" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "raksadesk" "\0"
             VALUE "LegalCopyright", "Copyright © 2024 Tecnocomp Tecnologia e Serviços" "\0"

@@ -352,7 +352,7 @@ jobs:
           CREATE_DMG="$(command -v create-dmg)"
           CREATE_DMG="$(readlink -f "$CREATE_DMG")"
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG"
-          create-dmg --icon "RaksaDesk.app" 200 190 --hide-extension "RaksaDesk.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}-arm64.dmg ./flutter/build/macos/Build/Products/Release/RaksaDesk.app
+          create-dmg --icon "IPMRmt.app" 200 190 --hide-extension "IPMRmt.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}-arm64.dmg ./flutter/build/macos/Build/Products/Release/IPMRmt.app
 
       - name: Upload unsigned macOS app
         if: env.UPLOAD_ARTIFACT == 'true'
@@ -370,8 +370,8 @@ jobs:
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG"
           # start sign the raksadesk.app and dmg
           rm -rf *.dmg || true
-          codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict ./flutter/build/macos/Build/Products/Release/RaksaDesk.app -vvv
-          create-dmg --icon "RaksaDesk.app" 200 190 --hide-extension "RaksaDesk.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}.dmg ./flutter/build/macos/Build/Products/Release/RaksaDesk.app
+          codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict ./flutter/build/macos/Build/Products/Release/IPMRmt.app -vvv
+          create-dmg --icon "IPMRmt.app" 200 190 --hide-extension "IPMRmt.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}.dmg ./flutter/build/macos/Build/Products/Release/IPMRmt.app
           codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict raksadesk-${{ env.VERSION }}.dmg -vvv
           # notarize the raksadesk-${{ env.VERSION }}.dmg
           rcodesign notary-submit --api-key-path ~/.p12/api-key.json  --staple raksadesk-${{ env.VERSION }}.dmg
@@ -658,7 +658,7 @@ jobs:
           CREATE_DMG="$(command -v create-dmg)"
           CREATE_DMG="$(readlink -f "$CREATE_DMG")"
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG"
-          create-dmg --icon "RaksaDesk.app" 200 190 --hide-extension "RaksaDesk.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg ./flutter/build/macos/Build/Products/Release/RaksaDesk.app
+          create-dmg --icon "IPMRmt.app" 200 190 --hide-extension "IPMRmt.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg ./flutter/build/macos/Build/Products/Release/IPMRmt.app
 
       - name: Upload unsigned macOS app
         if: env.UPLOAD_ARTIFACT == 'true'
@@ -679,8 +679,8 @@ jobs:
           security unlock-keychain -p ${{ secrets.MACOS_P12_PASSWORD }} rustdesk.keychain
           # start sign the raksadesk.app and dmg
           rm -rf *.dmg || true
-          codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict ./flutter/build/macos/Build/Products/Release/RaksaDesk.app -vvv
-          create-dmg --icon "RaksaDesk.app" 200 190 --hide-extension "RaksaDesk.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}.dmg ./flutter/build/macos/Build/Products/Release/RaksaDesk.app
+          codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict ./flutter/build/macos/Build/Products/Release/IPMRmt.app -vvv
+          create-dmg --icon "IPMRmt.app" 200 190 --hide-extension "IPMRmt.app" --window-size 800 400 --app-drop-link 600 185 raksadesk-${{ env.VERSION }}.dmg ./flutter/build/macos/Build/Products/Release/IPMRmt.app
           codesign --force --options runtime -s ${{ secrets.MACOS_CODESIGN_IDENTITY }} --deep --strict raksadesk-${{ env.VERSION }}.dmg -vvv
           # notarize the raksadesk-${{ env.VERSION }}.dmg
           rcodesign notary-submit --api-key-path ${{ github.workspace }}/rustdesk.json  --staple raksadesk-${{ env.VERSION }}.dmg

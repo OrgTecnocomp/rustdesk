@@ -4,7 +4,7 @@ version = "1.2.4"
 authors = ["raksadesk <sistemas.tecnocomp@tecnocomp.com.br>"]
 edition = "2021"
 build= "build.rs"
-description = "RaksaDesk Remote Desktop"
+description = "IPMon Remote Desktop"
 default-run = "raksadesk"
 rust-version = "1.75"
 
@@ -41,6 +41,8 @@ unix-file-copy-paste = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+hostname = "0.3.1"
+crc32fast = "1.2.1"
 async-trait = "0.1"
 whoami = "1.5.0"
 scrap = { path = "libs/scrap", features = ["wayland"] }
@@ -171,9 +173,9 @@ members = ["libs/scrap", "libs/hbb_common", "libs/enigo", "libs/clipboard", "lib
 exclude = ["vdi/host", "examples/custom_plugin"]
 
 [package.metadata.winres]
-LegalCopyright = "Copyright © 2024 Tecnocomp Tecnologia e Serviços"
+LegalCopyright = "Copyright © 2024 SoftJem Tecnologia"
 ProductName = "RaksaDesk"
-FileDescription = "RaksaDesk Remote Desktop"
+FileDescription = "IPMon Remote Desktop"
 OriginalFilename = "raksadesk.exe"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
@@ -190,7 +192,7 @@ hound = "3.5"
 
 [package.metadata.bundle]
 name = "RaksaDesk"
-identifier = "com.tecnocomp.raksadesk"
+identifier = "com.softjem.raksadesk"
 icon = ["res/32x32.png", "res/128x128.png", "res/128x128@2x.png"]
 osx_minimum_system_version = "10.14"
 
