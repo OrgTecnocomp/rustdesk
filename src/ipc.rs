@@ -232,6 +232,8 @@ pub enum Data {
     #[cfg(windows)]
     ControlledSessionCount(usize),
     CmErr(String),
+    CheckHwcodec,
+    VideoConnCount(Option<usize>),
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -381,6 +383,15 @@ async fn handle(data: Data, stream: &mut Connection) {
                 log::info!("socks updated");
             }
         },
+        Data::VideoConnCount(None) => {
+            let n = crate::server::AUTHED_CONNS
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|x| x.1 == crate::server::AuthConnType::Remote)
+                .count();
+            allow_err!(stream.send(&Data::VideoConnCount(Some(n))).await);
+        }
         Data::Config((name, value)) => match value {
             None => {
                 let value;
@@ -443,7 +454,12 @@ async fn handle(data: Data, stream: &mut Connection) {
                 if let Some(v) = value.get("privacy-mode-impl-key") {
                     crate::privacy_mode::switch(v);
                 }
+                let pre_opts = Config::get_options();
+                let new_audio_input = pre_opts.get("audio-input");
                 Config::set_options(value);
+                if new_audio_input != pre_opts.get("audio-input") {
+                    crate::audio_service::restart();
+                }
                 allow_err!(stream.send(&Data::Options(None)).await);
             }
         },
@@ -501,6 +517,14 @@ async fn handle(data: Data, stream: &mut Connection) {
                     ))
                     .await
             );
+        }
+        Data::CheckHwcodec =>
+        {
+            #[cfg(feature = "hwcodec")]
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            if crate::platform::is_root() {
+                scrap::hwcodec::start_check_process(true);
+            }
         }
         _ => {}
     }
@@ -895,6 +919,9 @@ pub async fn set_socks(value: config::Socks5Server) -> ResultType<()> {
     Ok(())
 }
 
+pub fn get_proxy_status() -> bool {
+    Config::get_socks().is_some()
+}
 #[tokio::main(flavor = "current_thread")]
 pub async fn test_rendezvous_server() -> ResultType<()> {
     let mut c = connect(1000, "").await?;
@@ -923,6 +950,12 @@ pub fn close_all_instances() -> ResultType<bool> {
 pub async fn connect_to_user_session(usid: Option<u32>) -> ResultType<()> {
     let mut stream = crate::ipc::connect(1000, crate::POSTFIX_SERVICE).await?;
     timeout(1000, stream.send(&crate::ipc::Data::UserSid(usid))).await??;
+    Ok(())
+}
+
+#[tokio::main(flavor = "current_thread")]
+pub async fn notify_server_to_check_hwcodec() -> ResultType<()> {
+    connect(1_000, "").await?.send(&&Data::CheckHwcodec).await?;
     Ok(())
 }
 
