@@ -197,7 +197,7 @@ fn elevate_install(
     if !same_plugin_exists {
         args.push(&plugin_url);
     }
-    crate::platform::elevate(args, "IPMRmt wants to install then plugin")
+    crate::platform::elevate(args, "RaksaDesk wants to install then plugin")
 }
 
 #[inline]
@@ -217,7 +217,7 @@ fn elevate_uninstall(plugin_id: &str) -> ResultType<bool> {
 fn elevate_uninstall(plugin_id: &str) -> ResultType<bool> {
     crate::platform::elevate(
         vec!["--plugin-uninstall", plugin_id],
-        "IPMRmt wants to uninstall the plugin",
+        "RaksaDesk wants to uninstall the plugin",
     )
 }
 

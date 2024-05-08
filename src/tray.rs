@@ -51,13 +51,13 @@ pub fn make_tray() -> hbb_common::ResultType<()> {
         if count == 0 {
             format!(
                 "{} {}",
-                "IPMon Remote Desktop",   //crate::get_app_name(), (JEM)
+                "RaksaDesk Remote Desktop",   //crate::get_app_name(), (JEM)
                 "",                       // translate("Service is running".to_owned()), 
             )
         } else {
             format!(
                 "{} - {}\n{}",
-                "IPMon Remote Desktop",   //crate::get_app_name(),
+                "RaksaDesk Remote Desktop",   //crate::get_app_name(),
                 translate("Ready".to_owned()),
                 translate("{".to_string() + &format!("{count}") + "} sessions"),
             )

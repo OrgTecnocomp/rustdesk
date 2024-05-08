@@ -4,7 +4,7 @@ version = "1.2.4"
 authors = ["raksadesk <sistemas.tecnocomp@tecnocomp.com.br>"]
 edition = "2021"
 build= "build.rs"
-description = "IPMon Remote Desktop"
+description = "RaksaDesk Remote Desktop"
 default-run = "raksadesk"
 rust-version = "1.75"
 
@@ -175,7 +175,7 @@ exclude = ["vdi/host", "examples/custom_plugin"]
 [package.metadata.winres]
 LegalCopyright = "Copyright © 2024 SoftJem Tecnologia"
 ProductName = "RaksaDesk"
-FileDescription = "IPMon Remote Desktop"
+FileDescription = "RaksaDesk Remote Desktop"
 OriginalFilename = "raksadesk.exe"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
