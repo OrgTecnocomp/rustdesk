@@ -173,7 +173,7 @@ members = ["libs/scrap", "libs/hbb_common", "libs/enigo", "libs/clipboard", "lib
 exclude = ["vdi/host", "examples/custom_plugin"]
 
 [package.metadata.winres]
-LegalCopyright = "Copyright © 2024 SoftJem Tecnologia"
+LegalCopyright = "Copyright © 2024 Tecnocomp Tecnologia e Serviços"
 ProductName = "RaksaDesk"
 FileDescription = "RaksaDesk Remote Desktop"
 OriginalFilename = "raksadesk.exe"

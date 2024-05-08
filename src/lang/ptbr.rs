@@ -586,7 +586,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("2FA code must be 6 digits.", ""),
         ("Multiple Windows sessions found", "Várias sessões do Windows encontradas"),
         ("Please select the session you want to connect to", "Selecione a sessão que deseja conectar"),
-        ("powered_by_me", "SoftJem Tecnologia"),
+        ("powered_by_me", "Tecnocomp Tecnologia e Serviços"),
         ("outgoing_only_desk_tip", ""),
         ("preset_password_warning", ""),
         ("Security Alert", ""),

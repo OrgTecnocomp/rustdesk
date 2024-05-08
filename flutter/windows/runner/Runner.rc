@@ -89,7 +89,7 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "SoftJem Tecnologia" "\0"
+            VALUE "CompanyName", "Tecnocomp Tecnologia e Serviços" "\0"
             VALUE "FileDescription", "RaksaDesk Remote Desktop" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "raksadesk" "\0"
