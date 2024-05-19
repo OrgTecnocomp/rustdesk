@@ -699,7 +699,7 @@ jobs:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
           files: |
-          ipmrmt*-${{ matrix.job.arch }}.dmg
+            ipmrmt*-${{ matrix.job.arch }}.dmg
 
   publish_unsigned:
     needs:
