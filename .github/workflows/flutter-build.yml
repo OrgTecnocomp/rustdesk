@@ -390,7 +390,7 @@ jobs:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
           files: |
-          ipmrmt*-aarch64.dmg
+            ipmrmt*-aarch64.dmg
 
   build-rustdesk-ios:
     if: ${{ inputs.upload-artifact }}
