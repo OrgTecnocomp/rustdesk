@@ -975,24 +975,24 @@ impl Connection {
             }
         }
         #[cfg(not(any(target_os = "android", target_os = "ios")))]   // (JEM)
-        if crate::is_server() {
+		{
            let parm_set_hinf = Config::get_option("parm-set-hinf");
            if parm_set_hinf == "" {
               self.send_login_error("The IPMon Agent is not properly configured").await;
               return false;
-		   }
+	  	   }
            if parm_set_hinf != "10E686D" {
-             let host_str: String = get().unwrap_or_else(|_| "Unknown".into()).into_string().unwrap_or_else(|_| "Errror".into());
-             let agt = "agt";
-             let mut strcrc = agt.to_string();
-             strcrc.push_str(&host_str.to_uppercase());
-             let crc_value = get_strcrc(&strcrc);
-             if crc_value.to_string() != parm_set_hinf {
-                self.send_login_error("Inconsistency in IPMon Agent configuration").await;
-                return false;
-             }
-		   }
-        }
+              let host_str: String = get().unwrap_or_else(|_| "Unknown".into()).into_string().unwrap_or_else(|_| "Errror".into());
+              let agt = "agt";
+              let mut strcrc = agt.to_string();
+              strcrc.push_str(&host_str.to_uppercase());
+              let crc_value = get_strcrc(&strcrc);
+              if crc_value.to_string() != parm_set_hinf {
+                 self.send_login_error("Inconsistency in IPMon Agent configuration").await;
+                 return false;
+              }
+		    }
+		}
         self.ip = addr.ip().to_string();
         let mut msg_out = Message::new();
         msg_out.set_hash(self.hash.clone());
