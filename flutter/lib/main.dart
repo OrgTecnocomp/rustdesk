@@ -408,7 +408,7 @@ class _AppState extends State<App> {
         child: GetMaterialApp(
           navigatorKey: globalKey,
           debugShowCheckedModeBanner: false,
-          title: 'IPMRmt',
+          title: 'RaksaDesk',
           theme: MyTheme.lightTheme,
           darkTheme: MyTheme.darkTheme,
           themeMode: MyTheme.currentThemeMode(),
