@@ -442,21 +442,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       //    bind.mainUpdateMe();
       //  });
       //}
-      //if (!bind.mainIsInstalled()) {              // (JEM)
-      //  return buildInstallCard(
-      //      "", bind.isOutgoingOnly() ? "" : "install_tip", "Install",
-      //      () async {
-      //    await rustDeskWinManager.closeAllSubWindows();
-      //    bind.mainGotoInstall();
-      //  });
-      //} else if (bind.mainIsInstalledLowerVersion()) {
-      //  return buildInstallCard(
-      //      "Status", "Your installation is lower version.", "Click to upgrade",
-      //      () async {
-      //    await rustDeskWinManager.closeAllSubWindows();
-      //    bind.mainUpdateMe();
-      //  });
-      //}
     } else if (isMacOS) {
       if (!(bind.isOutgoingOnly() ||
           bind.mainIsCanScreenRecording(prompt: false))) {
@@ -673,12 +658,10 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   @override
   void initState() {
     super.initState();
-    if (!bind.isCustomClient()) {
-      Timer(const Duration(seconds: 1), () async {
-        updateUrl = await bind.mainGetSoftwareUpdateUrl();
-        if (updateUrl.isNotEmpty) setState(() {});
-      });
-    }
+    Timer(const Duration(seconds: 1), () async {
+      updateUrl = await bind.mainGetSoftwareUpdateUrl();
+      if (updateUrl.isNotEmpty) setState(() {});
+    });
     _updateTimer = periodic_immediate(const Duration(seconds: 1), () async {
       await gFFI.serverModel.fetchID();
       final error = await bind.mainGetError();

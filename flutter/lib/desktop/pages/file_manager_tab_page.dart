@@ -91,21 +91,18 @@ class _FileManagerTabPageState extends State<FileManagerTabPage> {
 
   @override
   Widget build(BuildContext context) {
-    final child = Scaffold(
-        backgroundColor: Theme.of(context).cardColor,
-        body: DesktopTab(
-          controller: tabController,
-          onWindowCloseButton: handleWindowCloseButton,
-          tail: const AddButton(),
-          labelGetter: DesktopTab.tablabelGetter,
-        ));
-    final tabWidget = isLinux
-        ? buildVirtualWindowFrame(context, child)
-        : Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: MyTheme.color(context).border!)),
-            child: child,
-          );
+    final tabWidget = Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: MyTheme.color(context).border!)),
+      child: Scaffold(
+          backgroundColor: Theme.of(context).cardColor,
+          body: DesktopTab(
+            controller: tabController,
+            onWindowCloseButton: handleWindowCloseButton,
+            tail: const AddButton(),
+            labelGetter: DesktopTab.tablabelGetter,
+          )),
+    );
     return isMacOS || kUseCompatibleUiMode
         ? tabWidget
         : SubWindowDragToResizeArea(
@@ -131,9 +128,9 @@ class _FileManagerTabPageState extends State<FileManagerTabPage> {
       tabController.clear();
       return true;
     } else {
+      final opt = "enable-confirm-closing-tabs";
       final bool res;
-      if (!option2bool(kOptionEnableConfirmClosingTabs,
-          bind.mainGetLocalOption(key: kOptionEnableConfirmClosingTabs))) {
+      if (!option2bool(opt, bind.mainGetLocalOption(key: opt))) {
         res = true;
       } else {
         res = await closeConfirmDialog();

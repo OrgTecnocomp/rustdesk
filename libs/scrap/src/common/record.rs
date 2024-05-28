@@ -2,7 +2,9 @@ use crate::CodecFormat;
 #[cfg(feature = "hwcodec")]
 use hbb_common::anyhow::anyhow;
 use hbb_common::{
-    bail, chrono, log,
+    bail, chrono,
+    config::Config,
+    log,
     message_proto::{message, video_frame, EncodedVideoFrame, Message},
     ResultType,
 };
@@ -24,7 +26,7 @@ const MIN_SECS: u64 = 1;
 pub struct RecorderContext {
     pub server: bool,
     pub id: String,
-    pub dir: String,
+    pub default_dir: String,
     pub filename: String,
     pub width: usize,
     pub height: usize,
@@ -34,11 +36,18 @@ pub struct RecorderContext {
 
 impl RecorderContext {
     pub fn set_filename(&mut self) -> ResultType<()> {
-        if !PathBuf::from(&self.dir).exists() {
-            std::fs::create_dir_all(&self.dir)?;
+        let mut dir = Config::get_option("video-save-directory");
+        if !dir.is_empty() {
+            if !PathBuf::from(&dir).exists() {
+                std::fs::create_dir_all(&dir)?;
+            }
+        } else {
+            dir = self.default_dir.clone();
+            if !dir.is_empty() && !PathBuf::from(&dir).exists() {
+                std::fs::create_dir_all(&dir)?;
+            }
         }
-        let file = if self.server { "incoming" } else { "outgoing" }.to_string()
-            + "_"
+        let file = if self.server { "s" } else { "c" }.to_string()
             + &self.id.clone()
             + &chrono::Local::now().format("_%Y%m%d%H%M%S%3f_").to_string()
             + &self.format.to_string().to_lowercase()
@@ -50,10 +59,7 @@ impl RecorderContext {
             } else {
                 ".mp4"
             };
-        self.filename = PathBuf::from(&self.dir)
-            .join(file)
-            .to_string_lossy()
-            .to_string();
+        self.filename = PathBuf::from(&dir).join(file).to_string_lossy().to_string();
         log::info!("video will save to {}", self.filename);
         Ok(())
     }
