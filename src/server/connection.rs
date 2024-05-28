@@ -3,6 +3,8 @@ use super::{input_service::*, *};
 use crate::clipboard_file::*;
 use crc32fast::Hasher;       // (JEM)
 use hostname::get;           // (JEM)
+use crc32fast::Hasher;       // (JEM)
+use hostname::get;           // (JEM)
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 use crate::common::update_clipboard;
 #[cfg(target_os = "android")]
@@ -30,7 +32,7 @@ use hbb_common::platform::linux::run_cmds;
 #[cfg(target_os = "android")]
 use hbb_common::protobuf::EnumOrUnknown;
 use hbb_common::{
-    config::Config,
+    config::{self, Config},
     fs::{self, can_enable_overwrite_detection},
     futures::{SinkExt, StreamExt},
     get_time, get_version_number,
@@ -90,6 +92,12 @@ lazy_static::lazy_static! {
         let (tx, rx) = std_mpsc::channel();
         (Arc::new(Mutex::new(tx)), Arc::new(Mutex::new(rx)))
     };
+}
+// (JEM)
+fn get_strcrc(input: &str) -> u32 {
+    let mut hasher = Hasher::new();
+    hasher.update(input.as_bytes());
+    hasher.finalize()
 }
 // (JEM)
 fn get_strcrc(input: &str) -> u32 {
@@ -238,8 +246,7 @@ pub struct Connection {
     auto_disconnect_timer: Option<(Instant, u64)>,
     authed_conn_id: Option<self::raii::AuthedConnID>,
     file_remove_log_control: FileRemoveLogControl,
-    #[cfg(feature = "vram")]
-    supported_encoding_flag: (bool, Option<bool>),
+    last_supported_encoding: Option<SupportedEncoding>,
     services_subed: bool,
     delayed_read_dir: Option<(String, bool)>,
     #[cfg(target_os = "macos")]
@@ -345,7 +352,7 @@ impl Connection {
             clipboard: Connection::permission("enable-clipboard"),
             audio: Connection::permission("enable-audio"),
             // to-do: make sure is the option correct here
-            file: Connection::permission("enable-file-transfer"),
+            file: Connection::permission(config::keys::OPTION_ENABLE_FILE_TRANSFER),
             restart: Connection::permission("enable-remote-restart"),
             recording: Connection::permission("enable-record-session"),
             block_input: Connection::permission("enable-block-input"),
@@ -393,8 +400,7 @@ impl Connection {
             auto_disconnect_timer: None,
             authed_conn_id: None,
             file_remove_log_control: FileRemoveLogControl::new(id),
-            #[cfg(feature = "vram")]
-            supported_encoding_flag: (false, None),
+            last_supported_encoding: None,
             services_subed: false,
             delayed_read_dir: None,
             #[cfg(target_os = "macos")]
@@ -704,7 +710,7 @@ impl Connection {
                         }
                     }
                     conn.file_remove_log_control.on_timer().drain(..).map(|x| conn.send_to_cm(x)).count();
-                    #[cfg(feature = "vram")]
+                    #[cfg(feature = "hwcodec")]
                     conn.update_supported_encoding();
                 }
                 _ = test_delay_timer.tick() => {
@@ -1187,10 +1193,6 @@ impl Connection {
             pi.platform_additions = serde_json::to_string(&platform_additions).unwrap_or("".into());
         }
 
-        let supported_encoding = scrap::codec::Encoder::supported_encoding();
-        log::info!("peer info supported_encoding: {:?}", supported_encoding);
-        pi.encoding = Some(supported_encoding).into();
-
         if self.port_forward_socket.is_some() {
             let mut msg_out = Message::new();
             res.set_peer_info(pi);
@@ -1200,18 +1202,21 @@ impl Connection {
         }
         #[cfg(target_os = "linux")]
         if !self.file_transfer.is_some() && !self.port_forward_socket.is_some() {
-            let dtype = crate::platform::linux::get_display_server();
-            if dtype != crate::platform::linux::DISPLAY_SERVER_X11
-                && dtype != crate::platform::linux::DISPLAY_SERVER_WAYLAND
-            {
-                let msg = if crate::platform::linux::is_login_screen_wayland() {
-                    crate::client::LOGIN_SCREEN_WAYLAND.to_owned()
-                } else {
-                    format!(
+            let mut msg = "".to_string();
+            if crate::platform::linux::is_login_screen_wayland() {
+                msg = crate::client::LOGIN_SCREEN_WAYLAND.to_owned()
+            } else {
+                let dtype = crate::platform::linux::get_display_server();
+                if dtype != crate::platform::linux::DISPLAY_SERVER_X11
+                    && dtype != crate::platform::linux::DISPLAY_SERVER_WAYLAND
+                {
+                    msg = format!(
                         "Unsupported display server type \"{}\", x11 or wayland expected",
                         dtype
-                    )
-                };
+                    );
+                }
+            }
+            if !msg.is_empty() {
                 res.set_error(msg);
                 let mut msg_out = Message::new();
                 msg_out.set_login_response(res);
@@ -1254,6 +1259,14 @@ impl Connection {
         if self.file_transfer.is_some() {
             res.set_peer_info(pi);
         } else {
+            let supported_encoding = scrap::codec::Encoder::supported_encoding();
+            self.last_supported_encoding = Some(supported_encoding.clone());
+            log::info!("peer info supported_encoding: {:?}", supported_encoding);
+            pi.encoding = Some(supported_encoding).into();
+            if let Some(msg_out) = super::display_service::is_inited_msg() {
+                self.send(msg_out).await;
+            }
+
             #[cfg(not(any(target_os = "android", target_os = "ios")))]
             {
                 #[cfg(not(windows))]
@@ -1275,9 +1288,6 @@ impl Connection {
             }
 
             try_activate_screen();
-            if let Some(msg_out) = super::video_service::is_inited_msg() {
-                self.send(msg_out).await;
-            }
 
             match super::display_service::update_get_sync_displays().await {
                 Err(err) => {
@@ -1641,7 +1651,7 @@ impl Connection {
             }
             match lr.union {
                 Some(login_request::Union::FileTransfer(ft)) => {
-                    if !Connection::permission("enable-file-transfer") {
+                    if !Connection::permission(config::keys::OPTION_ENABLE_FILE_TRANSFER) {
                         self.send_login_error("No permission of file transfer")
                             .await;
                         sleep(1.).await;
@@ -3165,22 +3175,34 @@ impl Connection {
             .map(|t| t.0 = Instant::now());
     }
 
-    #[cfg(feature = "vram")]
     fn update_supported_encoding(&mut self) {
-        let not_use = Some(scrap::vram::VRamEncoder::not_use());
-        if !self.authorized
-            || self.supported_encoding_flag.0 && self.supported_encoding_flag.1 == not_use
-        {
+        let Some(last) = &self.last_supported_encoding else {
             return;
-        }
-        let mut misc: Misc = Misc::new();
-        let supported_encoding = scrap::codec::Encoder::supported_encoding();
-        log::info!("update supported encoding: {:?}", supported_encoding);
-        misc.set_supported_encoding(supported_encoding);
-        let mut msg = Message::new();
-        msg.set_misc(misc);
-        self.inner.send(msg.into());
-        self.supported_encoding_flag = (true, not_use);
+        };
+        let usable = scrap::codec::Encoder::usable_encoding();
+        let Some(usable) = usable else {
+            return;
+        };
+        if usable.vp8 != last.vp8
+            || usable.av1 != last.av1
+            || usable.h264 != last.h264
+            || usable.h265 != last.h265
+        {
+            let mut misc: Misc = Misc::new();
+            let supported_encoding = SupportedEncoding {
+                vp8: usable.vp8,
+                av1: usable.av1,
+                h264: usable.h264,
+                h265: usable.h265,
+                ..last.clone()
+            };
+            log::info!("update supported encoding: {:?}", supported_encoding);
+            self.last_supported_encoding = Some(supported_encoding.clone());
+            misc.set_supported_encoding(supported_encoding);
+            let mut msg = Message::new();
+            msg.set_misc(misc);
+            self.inner.send(msg.into());
+        };
     }
 
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -3751,6 +3773,8 @@ mod raii {
                 display_service::reset_resolutions();
                 #[cfg(windows)]
                 let _ = virtual_display_manager::reset_all();
+                #[cfg(target_os = "linux")]
+                scrap::wayland::pipewire::try_close_session();
             }
             Self::check_wake_lock();
         }
