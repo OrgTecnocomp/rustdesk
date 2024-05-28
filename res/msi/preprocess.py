@@ -72,7 +72,7 @@ def make_parser():
         "-m",
         "--manufacturer",
         type=str,
-        default="SOFTJEM",
+        default="TECNOCOMP",
         help="The app manufacturer.",
     )
     return parser
