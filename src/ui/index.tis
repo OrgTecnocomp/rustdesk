@@ -335,7 +335,7 @@ class MyIdMenu: Reactor.Component {
                 <div .separator />
                 <li #allow-darktheme><span>{svg_checkmark}</span>{translate('Dark Theme')}</li>
                 <Languages />
-                <li #about>{translate('About')} {" IPMon Remote Desktop"}</li>
+                <li #about>{translate('About')} {" RaksaDesk Remote Desktop"}</li>
             </menu>
         </popup>;
     }
@@ -377,12 +377,12 @@ class MyIdMenu: Reactor.Component {
 
     function showAbout() {
         var name = handler.get_app_name();
-        msgbox("custom-nocancel-nook-hasclose", translate("About") + " IPMon Remote Desktop", "<div style='line-height: 2em'> \
+        msgbox("custom-nocancel-nook-hasclose", translate("About") + " RaksaDesk Remote Desktop", "<div style='line-height: 2em'> \
             <div>Version: " + handler.get_version() + " \
             <div>Fingerprint: " + handler.get_fingerprint() + " \
             <div .link .custom-event url='https://rustdesk.com'>" + "Vers&atilde;o customizada do RustDesk [1R]" + "</div> \
             <div .link .custom-event url='https://tecnocomp.com.br'>" + translate("Visite nosso site") + "</div> \
-	    <div style='background: #2c8cff; color: white; padding: 1em; margin-top: 1em;'>Copyright &copy; " + new Date().getFullYear() + " SoftJem Tecnologia\
+	    <div style='background: #ff4500; color: white; padding: 1em; margin-top: 1em;'>Copyright &copy; " + new Date().getFullYear() + " Tecnocomp Tecnologia e Serviços\
             <br />" + handler.get_license() + " \
             <p style='font-weight: bold'>" + translate("Slogan_tip") + "</p>\
             </div>\

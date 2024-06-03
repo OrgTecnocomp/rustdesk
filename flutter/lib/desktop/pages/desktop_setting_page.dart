@@ -1694,7 +1694,7 @@ class _AboutState extends State<_About> {
           child: SingleChildScrollView(
             controller: scrollController,
             physics: DraggableNeverScrollableScrollPhysics(),
-            child: _Card(title: '${translate('About')} IPMon Remote Desktop', children: [
+            child: _Card(title: '${translate('About')} RaksaDesk Remote Desktop', children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1727,7 +1727,7 @@ class _AboutState extends State<_About> {
                         style: linkStyle,
                       ).marginSymmetric(vertical: 4.0)),
                   Container(
-                    decoration: const BoxDecoration(color: Color(0xFF2c8cff)),
+                    decoration: const BoxDecoration(color: Color(0xFFff4500)),
                     padding:
                         const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
                     child: SelectionArea(
@@ -1738,7 +1738,7 @@ class _AboutState extends State<_About> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Copyright © ${DateTime.now().toString().substring(0, 4)} SoftJem Tecnologia\n$license',
+                                'Copyright © ${DateTime.now().toString().substring(0, 4)} Tecnocomp Tecnologia e Serviços\n$license',
                                 style: const TextStyle(color: Colors.white),
                               ),
                               Text(
