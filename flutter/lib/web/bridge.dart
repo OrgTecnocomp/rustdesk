@@ -1414,10 +1414,6 @@ class RaksadeskImpl {
     throw UnimplementedError();
   }
 
-  bool mainHasPixelbufferTextureRender({dynamic hint}) {
-    return false;
-  }
-
   bool mainHasFileClipboard({dynamic hint}) {
     return false;
   }
@@ -1461,6 +1457,10 @@ class RaksadeskImpl {
   }
 
   bool isDisableAb({dynamic hint}) {
+    return false;
+  }
+
+  bool isDisableGroupPanel({dynamic hint}) {
     return false;
   }
 
@@ -1605,6 +1605,10 @@ class RaksadeskImpl {
   }
 
   bool mainIsOptionFixed({required String key, dynamic hint}) {
+    throw UnimplementedError();
+  }
+
+  bool mainGetUseTextureRender({dynamic hint}) {
     throw UnimplementedError();
   }
 
